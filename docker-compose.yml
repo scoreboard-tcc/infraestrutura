@@ -1,0 +1,77 @@
+version: '3.7'
+
+services:
+    database:
+        image: postgres
+        environment:
+            - POSTGRES_USER
+            - POSTGRES_PASSWORD
+            - POSTGRES_DB
+        ports:
+            - 5432:5432
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+
+    mongo:
+        image: mongo
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME
+            - MONGO_INITDB_ROOT_PASSWORD
+            - MONGO_INITDB_DATABASE
+        ports:
+            - 27017:27017
+        volumes:
+            - mongodata:/data/db
+
+    minio:
+        image: minio/minio
+        environment:
+            - MINIO_ROOT_USER
+            - MINIO_ROOT_PASSWORD
+        ports:
+            - 9000:9000
+        volumes:
+            - minio:/data
+        command: server /data
+
+    backend:
+        image: jfrossi/backend
+        container_name: backend
+        environment:
+            - APP_PORT
+            - BROKER_WS_PORT
+            - BROKER_STANDALONE_PORT
+            - POSTGRES_URL
+            - MONGO_URL
+            - JWT_SECRET
+            - BROKER_PERSISTENCE_URL
+            - MINIO_ENDPOINT
+            - MINIO_PORT
+            - MINIO_ACCESS_KEY
+            - MINIO_SECRET_KEY
+            - MINIO_DOMAIN            
+        ports:
+            - 1883:1883
+            - 8080:8080
+            - 8081:8081
+        depends_on:
+            - database
+            - mongo
+            - minio
+
+    run_migrations:
+        image: jfrossi/backend
+        environment:
+            - POSTGRES_URL
+        depends_on:
+            - backend
+        command: >
+            /bin/sh -c "
+            npx knex migrate:latest --env development
+            exit 0;
+            "
+            
+volumes:
+    pgdata:
+    mongodata:
+    minio:
