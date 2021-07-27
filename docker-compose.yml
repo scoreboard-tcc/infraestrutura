@@ -60,7 +60,7 @@ services:
             - minio
 
     run_migrations:
-        image: jfrossi/backend
+        image: docker.pkg.github.com/scoreboard-tcc/backend/backend:latest
         environment:
             - POSTGRES_URL
         depends_on:

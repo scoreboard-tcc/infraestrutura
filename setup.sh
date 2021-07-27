@@ -34,7 +34,7 @@ done;
 
 echo "Populando dados iniciais no banco..."
 
-docker exec -backend npx knex seed:run --env development
+docker exec -t backend npx knex seed:run --env development
 
 echo "PATH=$PATH" > /etc/cron.d/certbot-renew
 echo "@monthly certbot renew --nginx >> /var/log/cron.log 2>&1" >>/etc/cron.d/certbot-renew
