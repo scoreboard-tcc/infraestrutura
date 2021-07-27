@@ -1,7 +1,10 @@
 read -p "Digite o domínio (ex: meudominio.com): " domain
 read -p "Digite um e-mail (necessário para gerar os certificados): " email
+read -p "Digite o nome de usuário do Github: " gh_username
+read -p "Digite o token do Github: " gh_token
 
 sed -i "s|scoreboardapp.tech|$domain|g" conf/reverse-proxy.conf
+sed -i "s|scoreboardapp.tech|$domain|g" .env
 
 echo "Instalando o Docker..."
 
@@ -10,6 +13,8 @@ sudo sh get-docker.sh
 rm get-docker.sh
 sudo apt install docker-compose -y
 newgrp docker <<EONG
+
+docker login docker.pkg.github.com -u $gh_username -p $gh_token
 docker-compose up -d
 
 echo "Instalando e configurando o Nginx..."
@@ -29,7 +34,7 @@ done;
 
 echo "Populando dados iniciais no banco..."
 
-docker exec -it backend npx knex seed:run --env development
+docker exec -backend npx knex seed:run --env development
 
 echo "PATH=$PATH" > /etc/cron.d/certbot-renew
 echo "@monthly certbot renew --nginx >> /var/log/cron.log 2>&1" >>/etc/cron.d/certbot-renew

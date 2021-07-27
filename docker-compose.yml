@@ -35,7 +35,7 @@ services:
         command: server /data
 
     backend:
-        image: jfrossi/backend
+        image: docker.pkg.github.com/scoreboard-tcc/backend/backend:latest
         container_name: backend
         environment:
             - APP_PORT
